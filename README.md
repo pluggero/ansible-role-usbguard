@@ -33,16 +33,10 @@ usbguard_service_state: "started"
 Controls the systemd service state. Set `usbguard_service_enabled: false` and `usbguard_service_state: "stopped"` to disable the service.
 
 ```yaml
-usbguard_generate_policy: false
-```
-
-When `true`, runs `usbguard generate-policy > /etc/usbguard/rules.conf` to capture currently attached devices as the base policy. Only executes if `rules.conf` does not already exist (idempotent). Requires all external USB devices to be disconnected before running so only internal devices are captured.
-
-```yaml
 usbguard_stable_rules: true
 ```
 
-When `true` (default), strips `parent-hash` and `with-connect-type` from the generated policy via `sed`. These attributes encode USB topology and connection type, making rules fragile across hardware changes. Stripping them produces portable rules that survive port changes and machine migrations. The role also validates that manually defined `usbguard_rules` do not contain these attributes at run time.
+When `true` (default), the role validates that entries in `usbguard_rules` do not contain `parent-hash` or `with-connect-type`. These attributes encode USB topology and connection type, making rules fragile across hardware changes and port migrations.
 
 ```yaml
 usbguard_daemon_config:

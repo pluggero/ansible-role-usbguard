@@ -7,7 +7,7 @@
     fail_msg: >-
       Rule contains unstable attribute (parent-hash or with-connect-type) — remove it for
       portable rules: {{ entry.rule if entry is mapping else entry }}
-  loop: "{{ usbguard_rules | map(attribute='entries') | flatten }}"
+  loop: "{{ usbguard_rules | map(attribute='entries') | select | flatten }}"
   loop_control:
     loop_var: entry
   when: usbguard_rules | length > 0 and usbguard_stable_rules

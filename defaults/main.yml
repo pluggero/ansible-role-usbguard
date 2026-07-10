@@ -6,11 +6,7 @@ usbguard_install_method: "package"
 usbguard_service_enabled: true
 usbguard_service_state: "started"
 
-# Policy generation — runs usbguard generate-policy > /etc/usbguard/rules.conf
-# Only executes if the file does not already exist (idempotent via shell creates:)
-usbguard_generate_policy: false
-
-# Strip parent-hash and with-connect-type from generated policy for stable, portable rules.
+# Reject rules containing parent-hash or with-connect-type at run time.
 usbguard_stable_rules: true
 
 # Daemon configuration — rendered into /etc/usbguard/usbguard-daemon.conf

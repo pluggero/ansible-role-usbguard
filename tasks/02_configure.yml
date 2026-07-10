@@ -24,6 +24,16 @@
       become: true
       notify: Restart usbguard
 
+    - name: Deploy /etc/usbguard/rules.conf
+      ansible.builtin.copy:
+        content: "# Managed by Ansible — do not edit manually\n"
+        dest: /etc/usbguard/rules.conf
+        owner: root
+        group: root
+        mode: "0600"
+      become: true
+      notify: Restart usbguard
+
     - name: Ensure rules directory exists
       ansible.builtin.file:
         path: "{{ usbguard_rules_dir }}"
