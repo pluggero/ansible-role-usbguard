@@ -52,7 +52,7 @@ jobs:
           - vagrant_box: archlinux
             vagrant_box_version: "2026.06.14"
     env:
-      VBOX_VERSION: "7.2.6"
+      VBOX_VERSION: "7.2.12"
       VBOX_DEB_DISTRO: "Ubuntu"
       VBOX_DEB_CODENAME: "noble"
 
