@@ -1,0 +1,4 @@
+---
+- name: Validate role variables
+  ansible.builtin.include_tasks:
+    file: "{{ role_path }}/tasks/noauto_validate_vars.yml"

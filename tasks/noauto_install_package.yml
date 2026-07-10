@@ -1,0 +1,11 @@
+---
+- name: Install usbguard OS-specifically via package manager
+  ansible.builtin.include_tasks: "{{ task_file }}"
+  with_first_found:
+    - "{{ role_path }}/tasks/noauto_install_{{ ansible_distribution }}-{{ ansible_distribution_major_version }}.yml"
+    - "{{ role_path }}/tasks/noauto_install_{{ ansible_os_family }}-{{ ansible_distribution_major_version }}.yml"
+    - "{{ role_path }}/tasks/noauto_install_{{ ansible_distribution }}.yml"
+    - "{{ role_path }}/tasks/noauto_install_{{ ansible_os_family }}.yml"
+    - "{{ role_path }}/tasks/noauto_install_{{ ansible_lsb.id }}.yml"
+  loop_control:
+    loop_var: task_file

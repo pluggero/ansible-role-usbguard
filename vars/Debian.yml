@@ -1,0 +1,5 @@
+---
+usbguard_dep_pkgs: []
+
+usbguard_distro_pkgs:
+  - usbguard

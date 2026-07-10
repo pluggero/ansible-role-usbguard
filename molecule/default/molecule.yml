@@ -1,0 +1,14 @@
+---
+role_name_check: 1
+dependency:
+  name: galaxy
+driver:
+  name: vagrant
+platforms:
+  - name: instance
+    box: "pluggero/${MOLECULE_DISTRO:-debian12}-ansible"
+    box_version: "${MOLECULE_VAGRANT_BOX_VERSION:-2026.06.14}"
+provisioner:
+  name: ansible
+  playbooks:
+    converge: ${MOLECULE_PLAYBOOK:-converge.yml}

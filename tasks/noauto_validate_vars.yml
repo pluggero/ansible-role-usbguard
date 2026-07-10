@@ -1,0 +1,13 @@
+---
+- name: Assert rules do not contain unstable attributes
+  ansible.builtin.assert:
+    that:
+      - "'parent-hash' not in ((entry.rule if entry is mapping else entry) | string)"
+      - "'with-connect-type' not in ((entry.rule if entry is mapping else entry) | string)"
+    fail_msg: >-
+      Rule contains unstable attribute (parent-hash or with-connect-type) — remove it for
+      portable rules: {{ entry.rule if entry is mapping else entry }}
+  loop: "{{ usbguard_rules | map(attribute='entries') | flatten }}"
+  loop_control:
+    loop_var: entry
+  when: usbguard_rules | length > 0 and usbguard_stable_rules

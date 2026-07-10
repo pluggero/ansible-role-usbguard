@@ -1,0 +1,17 @@
+# Managed by Ansible — do not edit manually
+{% for block in usbguard_rules %}
+{% if block.comment is defined %}
+# {{ block.comment }}
+{% endif %}
+{% for entry in block.entries %}
+{% if entry is mapping %}
+{% if entry.comment is defined %}
+## {{ entry.comment }}
+{% endif %}
+{{ entry.rule }}
+{% else %}
+{{ entry }}
+{% endif %}
+{% endfor %}
+
+{% endfor %}

@@ -1,0 +1,22 @@
+---
+- name: Ensure we are using pacman
+  ansible.builtin.fail:
+    msg: "This role only supports {{ ansible_os_family }} systems that use pacman as a package manager."
+  when: ansible_pkg_mgr != "pacman"
+
+- name: Install usbguard via pacman
+  block:
+    - name: Update pacman cache
+      community.general.pacman:
+        update_cache: true
+      changed_when: false
+      become: true
+
+    - name: Ensure usbguard is installed
+      community.general.pacman:
+        name: "{{ package }}"
+        state: present
+      loop: "{{ usbguard_distro_pkgs }}"
+      loop_control:
+        loop_var: package
+      become: true

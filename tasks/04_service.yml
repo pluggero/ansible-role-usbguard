@@ -1,0 +1,7 @@
+---
+- name: Manage usbguard service
+  ansible.builtin.systemd_service:
+    name: usbguard.service
+    state: "{{ usbguard_service_state }}"
+    enabled: "{{ usbguard_service_enabled }}"
+  become: true

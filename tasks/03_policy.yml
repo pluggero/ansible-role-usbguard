@@ -1,0 +1,12 @@
+---
+- name: Generate base USBGuard policy for currently attached devices
+  ansible.builtin.shell:
+    cmd: >-
+      set -o pipefail &&
+      usbguard generate-policy
+      {% if usbguard_stable_rules %}| sed -E 's/[[:space:]]+parent-hash "[^"]*"//g; s/[[:space:]]+with-connect-type "[^"]*"//g'{% endif %}
+      > /etc/usbguard/rules.conf
+    executable: /bin/bash
+    creates: /etc/usbguard/rules.conf
+  become: true
+  when: usbguard_generate_policy
