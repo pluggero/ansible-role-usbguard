@@ -1,6 +1,16 @@
 ---
 - name: Configure usbguard
   block:
+    - name: Deploy /etc/usbguard/rules.conf
+      ansible.builtin.copy:
+        content: "# Managed by Ansible - do not edit manually\n"
+        dest: /etc/usbguard/rules.conf
+        owner: root
+        group: root
+        mode: "0600"
+      become: true
+      notify: Restart usbguard
+
     - name: Ensure usbguard audit log directory exists
       ansible.builtin.file:
         path: "{{ usbguard_daemon_config.AuditFilePath | dirname }}"
@@ -24,16 +34,6 @@
       become: true
       notify: Restart usbguard
 
-    - name: Deploy /etc/usbguard/rules.conf
-      ansible.builtin.copy:
-        content: "# Managed by Ansible — do not edit manually\n"
-        dest: /etc/usbguard/rules.conf
-        owner: root
-        group: root
-        mode: "0600"
-      become: true
-      notify: Restart usbguard
-
     - name: Ensure rules directory exists
       ansible.builtin.file:
         path: "{{ usbguard_rules_dir }}"
@@ -43,15 +43,34 @@
         mode: "{{ usbguard_rules_dir_mode }}"
       become: true
 
-    - name: Deploy inline rules to rules directory
+    - name: Group rules blocks by target file
+      ansible.builtin.set_fact:
+        _usbguard_rule_groups: >-
+          {%- set g = namespace(data={}) -%}
+          {%- for block in usbguard_rules -%}
+            {%- if block.file_name is defined -%}
+              {%- set fname = block.file_number | string + '-' + block.file_name + '.conf' -%}
+            {%- else -%}
+              {%- set fname = block.file_number | string + '.conf' -%}
+            {%- endif -%}
+            {%- if fname not in g.data -%}{%- set _ = g.data.update({fname: []}) -%}{%- endif -%}
+            {%- set _ = g.data[fname].append(block) -%}
+          {%- endfor -%}
+          {{ g.data }}
+      when: usbguard_rules | length > 0
+
+    - name: Deploy rules files
       ansible.builtin.template:
         src: "{{ role_path }}/templates/rules.conf.j2"
-        dest: "{{ usbguard_rules_dir }}/{{ usbguard_rules_filename }}"
+        dest: "{{ usbguard_rules_dir }}/{{ item.key }}"
         owner: root
         group: root
         mode: "0600"
       become: true
       notify: Restart usbguard
+      vars:
+        _blocks: "{{ item.value }}"
+      loop: "{{ _usbguard_rule_groups | dict2items }}"
       when: usbguard_rules | length > 0
 
     - name: Seed manual rules placeholder in rules directory

@@ -68,25 +68,32 @@ usbguard_rules_dir_mode: "0700"
 Path and permissions for the rules drop-in directory.
 
 ```yaml
-usbguard_rules_filename: "10-rules.conf"
-```
-
-Filename used when deploying the rendered rules file to `rules.d/`. The numeric prefix controls load order within the directory.
-
-```yaml
 usbguard_rules: []
 ```
 
-Inline USB rules rendered into a single file in `rules.d/`. No file is deployed when this list is empty (the default). Rules are organised into blocks, each with an optional `comment` heading (rendered as `# heading`). Individual entries can be plain rule strings or dicts with an optional per-entry `comment` (rendered as `## note`):
+Inline USB rules deployed to `rules.d/`. No files are deployed when this list is empty (the default). Each block requires a `file_number` (integer; determines load order and filename prefix) and accepts an optional `file_name` (string; appended to the filename). Blocks sharing the same `file_number` and `file_name` are merged into one file. The `99` prefix is reserved for the manual rules file and rejected at validation.
+
+Computed filename:
+- `file_number` only → `{{ file_number }}.conf`
+- `file_number` + `file_name` → `{{ file_number }}-{{ file_name }}.conf`
+
+Each block also accepts an optional `comment` heading (rendered as `# heading`). Individual entries can be plain rule strings or dicts with an optional per-entry `comment` (rendered as `## note`):
 
 ```yaml
 usbguard_rules:
-  - comment: "Location or group name"
+  - file_number: 10
+    comment: "Internal devices"
     entries:
       - comment: "Device description"
         rule: 'allow id xxxx:xxxx serial "..." name "..." hash "..." with-interface xx:xx:xx'
       - 'allow id xxxx:xxxx serial "..." name "..." hash "..." with-interface xx:xx:xx'
-  - entries:
+  - file_number: 10                # same file_number → merged into 10.conf
+    entries:
+      - 'allow id xxxx:xxxx serial "..." name "..." hash "..." with-interface xx:xx:xx'
+  - file_number: 20
+    file_name: "office"            # → 20-office.conf
+    comment: "Office LAN"
+    entries:
       - 'allow id xxxx:xxxx serial "..." name "..." hash "..." with-interface xx:xx:xx'
 ```
 
@@ -129,7 +136,6 @@ None.
   roles:
     - role: pluggero.usbguard
       vars:
-        usbguard_generate_policy: true
         usbguard_daemon_config:
           RuleFile: "/etc/usbguard/rules.conf"
           RuleFolder: "/etc/usbguard/rules.d/"
@@ -146,7 +152,13 @@ None.
         usbguard_users:
           - "alice"
         usbguard_rules:
-          - comment: "Office devices"
+          - file_number: 10
+            comment: "Internal devices"
+            entries:
+              - 'allow id xxxx:xxxx serial "..." name "..." hash "..." with-interface xx:xx:xx'
+          - file_number: 20
+            file_name: "office"
+            comment: "Office devices"
             entries:
               - 'allow id xxxx:xxxx serial "..." name "..." hash "..." with-interface xx:xx:xx'
 ```
