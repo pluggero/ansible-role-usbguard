@@ -3,7 +3,7 @@
 {% if block.comment is defined %}
 # {{ block.comment }}
 {% endif %}
-{% for entry in block.entries | default([]) %}
+{% for entry in block.entries or [] %}
 {% if entry is mapping %}
 {% if entry.comment is defined %}
 ## {{ entry.comment }}
