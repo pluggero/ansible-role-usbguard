@@ -92,50 +92,80 @@
           - usbguard_rules_dir_stat.stat.mode == "0700"
         fail_msg: "/etc/usbguard/rules.d not found or wrong permissions"
 
-    - name: Check rules file exists
+    - name: Check 10-xhci.conf exists
       ansible.builtin.stat:
-        path: "{{ usbguard_rules_dir }}/{{ usbguard_rules_filename }}"
-      register: usbguard_rules_file_stat
+        path: "{{ usbguard_rules_dir }}/10-xhci.conf"
+      register: usbguard_rules_10_stat
       become: true
 
-    - name: Assert rules file exists with correct mode
+    - name: Assert 10-xhci.conf exists with correct mode
       ansible.builtin.assert:
         that:
-          - usbguard_rules_file_stat.stat.exists
-          - usbguard_rules_file_stat.stat.mode == "0600"
-        fail_msg: "{{ usbguard_rules_dir }}/{{ usbguard_rules_filename }} not found or wrong permissions"
+          - usbguard_rules_10_stat.stat.exists
+          - usbguard_rules_10_stat.stat.mode == "0600"
+        fail_msg: "{{ usbguard_rules_dir }}/10-xhci.conf not found or wrong permissions"
 
-    - name: Read rules file content
+    - name: Read 10-xhci.conf content
       ansible.builtin.slurp:
-        src: "{{ usbguard_rules_dir }}/{{ usbguard_rules_filename }}"
-      register: usbguard_rules_file_content
+        src: "{{ usbguard_rules_dir }}/10-xhci.conf"
+      register: usbguard_rules_10_content
       become: true
 
-    - name: Assert rules file contains managed-by header
+    - name: Assert 10-xhci.conf contains managed-by header
       ansible.builtin.assert:
         that:
-          - "'Managed by Ansible' in (usbguard_rules_file_content.content | b64decode)"
-        fail_msg: "Managed-by header not found in rules file"
+          - "'Managed by Ansible' in (usbguard_rules_10_content.content | b64decode)"
+        fail_msg: "Managed-by header not found in 10-xhci.conf"
 
-    - name: Assert rules file contains block comment heading
+    - name: Assert 10-xhci.conf contains block comment heading
       ansible.builtin.assert:
         that:
-          - "'# Test hub' in (usbguard_rules_file_content.content | b64decode)"
-        fail_msg: "Block comment '# Test hub' not found in rules file"
+          - "'# Test hub' in (usbguard_rules_10_content.content | b64decode)"
+        fail_msg: "Block comment '# Test hub' not found in 10-xhci.conf"
 
-    - name: Assert rules file contains per-entry comment
+    - name: Assert 10-xhci.conf contains per-entry comment
       ansible.builtin.assert:
         that:
-          - "'## Primary controller' in (usbguard_rules_file_content.content | b64decode)"
-        fail_msg: "Per-entry comment '## Primary controller' not found in rules file"
+          - "'## Primary controller' in (usbguard_rules_10_content.content | b64decode)"
+        fail_msg: "Per-entry comment '## Primary controller' not found in 10-xhci.conf"
 
-    - name: Assert rules file contains all allow rules
+    - name: Assert 10-xhci.conf contains xHCI allow rules
       ansible.builtin.assert:
         that:
-          - "'allow id 1d6b:0002' in (usbguard_rules_file_content.content | b64decode)"
-          - "'allow id 1d6b:0003' in (usbguard_rules_file_content.content | b64decode)"
-          - "'allow id 1d6b:0001' in (usbguard_rules_file_content.content | b64decode)"
-        fail_msg: "One or more expected allow rules not found in rules file"
+          - "'allow id 1d6b:0002' in (usbguard_rules_10_content.content | b64decode)"
+          - "'allow id 1d6b:0003' in (usbguard_rules_10_content.content | b64decode)"
+        fail_msg: "One or more expected xHCI allow rules not found in 10-xhci.conf"
+
+    - name: Check 20.conf exists
+      ansible.builtin.stat:
+        path: "{{ usbguard_rules_dir }}/20.conf"
+      register: usbguard_rules_20_stat
+      become: true
+
+    - name: Assert 20.conf exists with correct mode
+      ansible.builtin.assert:
+        that:
+          - usbguard_rules_20_stat.stat.exists
+          - usbguard_rules_20_stat.stat.mode == "0600"
+        fail_msg: "{{ usbguard_rules_dir }}/20.conf not found or wrong permissions"
+
+    - name: Read 20.conf content
+      ansible.builtin.slurp:
+        src: "{{ usbguard_rules_dir }}/20.conf"
+      register: usbguard_rules_20_content
+      become: true
+
+    - name: Assert 20.conf contains managed-by header
+      ansible.builtin.assert:
+        that:
+          - "'Managed by Ansible' in (usbguard_rules_20_content.content | b64decode)"
+        fail_msg: "Managed-by header not found in 20.conf"
+
+    - name: Assert 20.conf contains EHCI allow rule
+      ansible.builtin.assert:
+        that:
+          - "'allow id 1d6b:0001' in (usbguard_rules_20_content.content | b64decode)"
+        fail_msg: "Expected EHCI allow rule not found in 20.conf"
 
     - name: Check manual rules placeholder exists
       ansible.builtin.stat:
