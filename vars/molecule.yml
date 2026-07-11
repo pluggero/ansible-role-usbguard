@@ -3,12 +3,15 @@ usbguard_generate_policy: false
 usbguard_service_enabled: false
 usbguard_service_state: "stopped"
 usbguard_rules:
-  - comment: "Test hub"
+  - file_number: 10
+    file_name: "xhci"
+    comment: "Test hub"
     entries:
       - comment: "Primary controller"
         rule: 'allow id 1d6b:0002 serial "" name "xHCI Host Controller" hash "test1=" with-interface 09:00:00'
       - 'allow id 1d6b:0003 serial "" name "xHCI Host Controller" hash "test2=" with-interface 09:00:00'
-  - entries:
+  - file_number: 20
+    entries:
       - 'allow id 1d6b:0001 serial "" name "EHCI Host Controller" hash "test3=" with-interface 09:00:00'
 usbguard_users:
   - "ansible"
