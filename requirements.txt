@@ -3,4 +3,4 @@ ansible==14.5.0
 ansible-lint==26.10.0
 # Pinned versions because of https://github.com/ansible-community/molecule-plugins/issues/301
 molecule==25.1.0
-molecule-plugins[vagrant]==26.9.28
+molecule-plugins[vagrant]==26.10.12
