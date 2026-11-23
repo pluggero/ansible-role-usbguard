@@ -30,8 +30,8 @@ jobs:
         with:
           python-version: "3.14"
 
-      - name: Install Ansible
-        run: pip3 install ansible-core
+      - name: Install release dependencies
+        run: pip3 install -r requirements.txt
 
       - name: Trigger a new import on Galaxy
         run: >-
