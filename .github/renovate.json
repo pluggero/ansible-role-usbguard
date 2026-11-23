@@ -26,6 +26,10 @@
       "matchDepNames": ["/^pluggero\\/vagrant-.*-ansible$/"],
       "automerge": true,
       "automergeType": "pr"
+    },
+    {
+      "matchDatasources": ["github-runners"],
+      "automerge": false
     }
   ],
   "enabledManagers": [

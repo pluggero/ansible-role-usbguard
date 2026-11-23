@@ -17,7 +17,7 @@ defaults:
 jobs:
   lint:
     name: Lint
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     steps:
       - name: Check out the codebase
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
@@ -42,7 +42,7 @@ jobs:
 
   molecule:
     name: Molecule
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     needs: lint
     strategy:
       matrix:
@@ -178,7 +178,7 @@ jobs:
 
   status-check:
     name: Status Check
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     needs: [lint, molecule]
     if: always()
     defaults:
