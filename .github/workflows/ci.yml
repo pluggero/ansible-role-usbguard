@@ -17,7 +17,7 @@ defaults:
 jobs:
   lint:
     name: Lint
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     steps:
       - name: Check out the codebase
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
@@ -42,25 +42,27 @@ jobs:
 
   molecule:
     name: Molecule
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     needs: lint
     strategy:
       matrix:
         include:
           - vagrant_box: debian12
-            vagrant_box_version: "2026.09.27"
+            vagrant_box_version: "2026.11.22"
           - vagrant_box: archlinux
-            vagrant_box_version: "2026.09.27"
+            vagrant_box_version: "2026.11.22"
     env:
       VBOX_VERSION: "7.2.18"
       VBOX_DEB_DISTRO: "Ubuntu"
-      VBOX_DEB_CODENAME: "noble"
 
     steps:
       - name: Check out the codebase
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           path: "pluggero.usbguard"
+
+      - name: Detect runner codename
+        run: echo "VBOX_DEB_CODENAME=$(lsb_release -cs)" >> $GITHUB_ENV
 
       - name: Set up Python 3
         uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7
@@ -175,10 +177,12 @@ jobs:
           ANSIBLE_FORCE_COLOR: "1"
           MOLECULE_DISTRO: ${{ matrix.vagrant_box }}
           MOLECULE_VAGRANT_BOX_VERSION: ${{ matrix.vagrant_box_version }}
+          VAGRANT_BOX_S3_BUCKET: ${{ vars.VAGRANT_BOX_S3_BUCKET }}
+          VAGRANT_BOX_S3_ENDPOINT: ${{ vars.VAGRANT_BOX_S3_ENDPOINT }}
 
   status-check:
     name: Status Check
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     needs: [lint, molecule]
     if: always()
     defaults:
