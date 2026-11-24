@@ -1,0 +1,127 @@
+---
+argument_specs:
+  main:
+    short_description: Installs and configures USBGuard on various Linux distributions.
+    description: >-
+      Installs usbguard via the OS package manager, configures the daemon, deploys
+      rule files generated from structured rule blocks, seeds a manual-rules
+      placeholder, sets up group-based IPC access control, and manages the
+      usbguard service.
+    options:
+      usbguard_install_method:
+        type: str
+        required: false
+        default: "package"
+        choices:
+          - package
+        description: Installation method used to install usbguard. Currently only installation via the OS package manager is implemented.
+      usbguard_service_enabled:
+        type: bool
+        required: false
+        default: true
+        description: Whether the usbguard systemd service is enabled at boot.
+      usbguard_service_state:
+        type: str
+        required: false
+        default: "started"
+        choices:
+          - started
+          - stopped
+          - restarted
+          - reloaded
+        description: Desired state of the usbguard systemd service.
+      usbguard_stable_rules:
+        type: bool
+        required: false
+        default: true
+        description: >-
+          When true, reject rule entries that use unstable attributes
+          (parent-hash, with-connect-type) at run time (see
+          tasks/noauto_validate_vars.yml).
+      usbguard_daemon_config:
+        type: dict
+        required: false
+        description: Key-value settings rendered into /etc/usbguard/usbguard-daemon.conf.
+      usbguard_rules_dir:
+        type: path
+        required: false
+        default: "/etc/usbguard/rules.d"
+        description: Directory holding USBGuard rule files.
+      usbguard_rules_dir_mode:
+        type: str
+        required: false
+        default: "0700"
+        description: File mode applied to usbguard_rules_dir.
+      usbguard_rules:
+        type: list
+        elements: dict
+        required: false
+        default: []
+        description: >-
+          Rule blocks deployed to usbguard_rules_dir. Blocks sharing the same
+          file_number and file_name are merged into one rendered file.
+        options:
+          file_number:
+            type: int
+            required: true
+            description: >-
+              Controls load order and the filename prefix. The value 99 is
+              reserved for the manual rules file and rejected at run time
+              (see tasks/noauto_validate_vars.yml).
+          file_name:
+            type: str
+            required: false
+            description: Optional label appended to the filename, e.g. "10-office.conf".
+          comment:
+            type: str
+            required: false
+            description: Heading comment rendered above the block's entries.
+          entries:
+            type: list
+            elements: raw
+            required: false
+            description: >-
+              Rule entries. Each entry is either a plain rule string, or a dict
+              with "comment" and "rule" keys for a labeled entry.
+      usbguard_create_manual_rules_file:
+        type: bool
+        required: false
+        default: true
+        description: >-
+          Seed a placeholder 99-manual-rules.conf in usbguard_rules_dir for
+          operator-managed rules. Seeded once and never overwritten by Ansible.
+      usbguard_group:
+        type: str
+        required: false
+        default: "usbguard"
+        description: System group created by the role; members get USBGuard IPC access via the group ACL file.
+      usbguard_group_ipc:
+        type: dict
+        required: false
+        description: IPC privileges granted to usbguard_group via IPCAccessControl.d/:{{ usbguard_group }}.
+        options:
+          devices:
+            type: list
+            elements: str
+            required: false
+            default: []
+            description: IPC device privileges granted to the group.
+          policy:
+            type: list
+            elements: str
+            required: false
+            default: []
+            description: IPC policy privileges granted to the group.
+          exceptions:
+            type: list
+            elements: str
+            required: false
+            default: []
+            description: IPC exception privileges granted to the group.
+      usbguard_users:
+        type: list
+        elements: str
+        required: false
+        default:
+          - "{{ ansible_user }}"
+        description: Users added to usbguard_group. Defaults to the Ansible connection user.
